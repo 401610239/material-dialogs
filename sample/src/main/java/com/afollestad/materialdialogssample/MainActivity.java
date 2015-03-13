@@ -1,5 +1,10 @@
 package com.afollestad.materialdialogssample;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -10,6 +15,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -17,17 +23,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.Alignment;
 import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
+import com.afollestad.materialdialogs.ThemeSingleton;
 
 import java.io.File;
 
 /**
  * @author Aidan Follestad (afollestad)
  */
-public class MainActivity extends ActionBarActivity implements FolderSelectorDialog.Callback {
+public class MainActivity extends ActionBarActivity implements FolderSelectorDialog.FolderSelectCallback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +139,20 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
             }
         });
 
+        findViewById(R.id.customView_webView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCustomWebView();
+            }
+        });
+
+        findViewById(R.id.customView_colorChooser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCustomColorChooser();
+            }
+        });
+
         findViewById(R.id.themed).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,10 +160,38 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
             }
         });
 
+        findViewById(R.id.showCancelDismiss).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showShowCancelDismissCallbacks();
+            }
+        });
+
         findViewById(R.id.folder_chooser).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new FolderSelectorDialog().show(MainActivity.this, MainActivity.this);
+                new FolderSelectorDialog().show(MainActivity.this);
+            }
+        });
+
+        findViewById(R.id.progress1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgressDialog(false);
+            }
+        });
+
+        findViewById(R.id.progress2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgressDialog(true);
+            }
+        });
+
+        findViewById(R.id.preference_dialogs).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), PreferenceActivity.class));
             }
         });
     }
@@ -152,7 +201,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .content(R.string.shareLocationPrompt)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
-                .build()
                 .show();
     }
 
@@ -162,7 +210,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .content(R.string.useGoogleLocationServicesPrompt)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
-                .build()
                 .show();
     }
 
@@ -172,18 +219,17 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .content(R.string.loremIpsum)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
-                .build()
                 .show();
     }
 
     private void showBasicIcon() {
         new MaterialDialog.Builder(this)
-                .icon(R.drawable.ic_launcher)
+                .iconRes(R.drawable.ic_launcher)
+                .limitIconToDefaultSize() // limits the displayed icon size to 32dp
                 .title(R.string.useGoogleLocationServices)
                 .content(R.string.useGoogleLocationServicesPrompt)
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
-                .build()
                 .show();
     }
 
@@ -193,7 +239,7 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .content(R.string.useGoogleLocationServicesPrompt)
                 .positiveText(R.string.speedBoost)
                 .negativeText(R.string.noThanks)
-                .build()
+                .forceStacking(true)  // this generally should not be forced, but is used for demo purposes
                 .show();
     }
 
@@ -204,7 +250,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
                 .neutralText(R.string.more_info)
-                .build()
                 .show();
     }
 
@@ -215,7 +260,7 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .positiveText(R.string.agree)
                 .negativeText(R.string.disagree)
                 .neutralText(R.string.more_info)
-                .callback(new MaterialDialog.FullCallback() {
+                .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         Toast.makeText(getApplicationContext(), "Positive!", Toast.LENGTH_SHORT).show();
@@ -231,7 +276,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                         Toast.makeText(getApplicationContext(), "Negative…", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .build()
                 .show();
     }
 
@@ -245,7 +289,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                         Toast.makeText(getApplicationContext(), which + ": " + text, Toast.LENGTH_SHORT).show();
                     }
                 })
-                .build()
                 .show();
     }
 
@@ -258,7 +301,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                         Toast.makeText(getApplicationContext(), which + ": " + text, Toast.LENGTH_SHORT).show();
                     }
                 })
-                .build()
                 .show();
     }
 
@@ -273,7 +315,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                     }
                 })
                 .positiveText(android.R.string.ok)
-                .build()
                 .show();
     }
 
@@ -288,7 +329,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                     }
                 })
                 .positiveText(R.string.choose)
-                .build()
                 .show();
     }
 
@@ -301,16 +341,15 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                     public void onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
                         StringBuilder str = new StringBuilder();
                         for (int i = 0; i < which.length; i++) {
+                            if (i > 0) str.append('\n');
                             str.append(which[i]);
                             str.append(": ");
                             str.append(text[i]);
-                            str.append('\n');
                         }
                         Toast.makeText(getApplicationContext(), str.toString(), Toast.LENGTH_LONG).show();
                     }
                 })
                 .positiveText(R.string.choose)
-                .build()
                 .show();
     }
 
@@ -334,16 +373,16 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
     }
 
 
-    EditText passwordInput;
-    View positiveAction;
+    private EditText passwordInput;
+    private View positiveAction;
 
     private void showCustomView() {
         MaterialDialog dialog = new MaterialDialog.Builder(this)
                 .title(R.string.googleWifi)
-                .customView(R.layout.dialog_customview)
+                .customView(R.layout.dialog_customview, true)
                 .positiveText(R.string.connect)
                 .negativeText(android.R.string.cancel)
-                .callback(new MaterialDialog.Callback() {
+                .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         Toast.makeText(getApplicationContext(), "Password: " + passwordInput.getText().toString(), Toast.LENGTH_SHORT).show();
@@ -384,6 +423,34 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
         positiveAction.setEnabled(false); // disabled by default
     }
 
+    private void showCustomWebView() {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .title(R.string.changelog)
+                .customView(R.layout.dialog_webview, false)
+                .positiveText(android.R.string.ok)
+                .build();
+        WebView webView = (WebView) dialog.getCustomView().findViewById(R.id.webview);
+        webView.loadUrl("file:///android_asset/webview.html");
+        dialog.show();
+    }
+
+    static int selectedColorIndex = -1;
+
+    private void showCustomColorChooser() {
+        new ColorChooserDialog().show(this, selectedColorIndex, new ColorChooserDialog.Callback() {
+            @Override
+            public void onColorSelection(int index, int color, int darker) {
+                selectedColorIndex = index;
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+                ThemeSingleton.get().positiveColor = color;
+                ThemeSingleton.get().neutralColor = color;
+                ThemeSingleton.get().negativeColor = color;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    getWindow().setStatusBarColor(darker);
+            }
+        });
+    }
+
     private void showThemed() {
         new MaterialDialog.Builder(this)
                 .title(R.string.useGoogleLocationServices)
@@ -392,11 +459,92 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                 .negativeText(R.string.disagree)
                 .positiveColorRes(R.color.material_red_400)
                 .negativeColorRes(R.color.material_red_400)
-                .titleAlignment(Alignment.CENTER)
+                .titleGravity(GravityEnum.CENTER)
                 .titleColorRes(R.color.material_red_400)
+                .contentColorRes(android.R.color.white)
+                .backgroundColorRes(R.color.material_blue_grey_800)
+                .dividerColorRes(R.color.material_pink_500)
+                .btnSelector(R.drawable.md_btn_selector_custom, DialogAction.POSITIVE)
+                .positiveColor(Color.WHITE)
+                .negativeColorAttr(android.R.attr.textColorSecondaryInverse)
                 .theme(Theme.DARK)
-                .build()
                 .show();
+    }
+
+    private void showShowCancelDismissCallbacks() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.useGoogleLocationServices)
+                .content(R.string.useGoogleLocationServicesPrompt)
+                .positiveText(R.string.agree)
+                .negativeText(R.string.disagree)
+                .neutralText(R.string.more_info)
+                .showListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        Toast.makeText(getApplicationContext(), "onShow", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .cancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        Toast.makeText(getApplicationContext(), "onCancel", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .dismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        Toast.makeText(getApplicationContext(), "onDismiss", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+    }
+
+    public void showProgressDialog(boolean indeterminate) {
+        if (indeterminate) {
+            new MaterialDialog.Builder(this)
+                    .title(R.string.progress_dialog)
+                    .content(R.string.please_wait)
+                    .progress(true, 0)
+                    .show();
+        } else {
+            new MaterialDialog.Builder(this)
+                    .title(R.string.progress_dialog)
+                    .content(R.string.please_wait)
+                    .contentGravity(GravityEnum.CENTER)
+                    .progress(false, 150)
+                    .showListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialogInterface) {
+                            final MaterialDialog dialog = (MaterialDialog) dialogInterface;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    while (dialog.getCurrentProgress() != dialog.getMaxProgress()) {
+                                        if (dialog.isCancelled())
+                                            break;
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException e) {
+                                            break;
+                                        }
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                dialog.incrementProgress(1);
+                                            }
+                                        });
+                                    }
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            dialog.setContent(getString(R.string.done));
+                                        }
+                                    });
+                                }
+                            }).start();
+                        }
+                    }).show();
+        }
     }
 
     @Override
@@ -413,11 +561,6 @@ public class MainActivity extends ActionBarActivity implements FolderSelectorDia
                     .positiveText(R.string.dismiss)
                     .content(Html.fromHtml(getString(R.string.about_body)))
                     .contentLineSpacing(1.6f)
-                    .callback(new MaterialDialog.SimpleCallback() {
-                        @Override
-                        public void onPositive(MaterialDialog dialog) {
-                        }
-                    })
                     .build()
                     .show();
             return true;

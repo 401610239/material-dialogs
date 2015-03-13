@@ -51,6 +51,13 @@
     <string name="basic_icon">Basic (Icon)</string>
     <string name="basic_list_notitle">Basic List (No Title)</string>
     <string name="folder_chooser">Folder Chooser</string>
+    <string name="showCancelDismissCallbacks">Show/Cancel/Dismiss Callbacks</string>
+    <string name="changelog">Changelog</string>
+    <string name="customView_webView">Custom View No Scroll #1</string>
+    <string name="customView_colorChooser">Custom View No Scroll #2</string>
+    <string name="ssid">SSID</string>
+    <string name="ssidLit">Material Dialogs</string>
+    <string name="color_chooser">Color Chooser</string>
 
     <string-array name="socialNetworks">
         <item>Twitter</item>
@@ -117,5 +124,18 @@
         <item>Wisconsin</item>
         <item>Wyoming</item>
     </string-array>
+
+    <string name="preference_dialogs">Preference Dialogs</string>
+    <string name="list_pref_title">Material List Preference</string>
+    <string name="list_pref_desc">This is an example of a list preference that automatically uses Material Dialogs to show the list dialog.</string>
+    <string name="edittext_pref_title">Material EditText Preference</string>
+    <string name="edittext_pref_desc">This is an example of an EditText preference that automatically uses Material Dialogs to show the input dialog.</string>
+    <string name="edittext_pref_dialogtitle">Enter a Name</string>
+    <string name="edittext_pref_optionalvalue">Default value</string>
+    <string name="progress_dialog_indeterminate">Progress Dialog (Indeterminate)</string>
+    <string name="progress_dialog">Progress Dialog</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="done">Done!</string>
+    <string name="optional_dialog_message">This is an optional dialog message.</string>
 
 </resources>
